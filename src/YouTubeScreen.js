@@ -177,7 +177,7 @@ const YouTubeScreen = ({ searchQuery }) => {
                     relatedToVideoId: videoId,
                     type: 'video',
                     maxResults: 5,
-                    key: 'AIzaSyCXD0iMjhbp08njIq2QpYkb1dNfAx2s-es',
+                    key: 'AIzaSyCuqaEotDlH3E7C9YWWprUx0fMhZF-nbaA',
                 },
             });
 
@@ -205,7 +205,7 @@ const YouTubeScreen = ({ searchQuery }) => {
                         q: searchQuery,
                         type: 'video',
                         maxResults: 5,
-                        key: 'AIzaSyCXD0iMjhbp08njIq2QpYkb1dNfAx2s-es',
+                        key: 'AIzaSyCuqaEotDlH3E7C9YWWprUx0fMhZF-nbaA',
                     },
                 });
 
