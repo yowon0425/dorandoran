@@ -117,12 +117,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const ListeningScreen = ({ setSearchQuery }) => {
-    const [listening, setListening] = useState(false);
-    const [transcript, setTranscript] = useState('');
-    const [countdown, setCountdown] = useState(3);
-    const navigate = useNavigate();
-    const recognitionRef = useRef(null);
-    const isRecognitionStarted = useRef(false);
+  const [listening, setListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [finalTranscript, setFinalTranscript] = useState(''); // 새로운 state 추가
+  const [countdown, setCountdown] = useState(7);
+  const navigate = useNavigate();
+  const recognitionRef = useRef(null);
+  const isRecognitionStarted = useRef(false);
 
     const saveTranscriptToFirebase = async (transcript) => {
         try {
@@ -137,31 +138,33 @@ const ListeningScreen = ({ setSearchQuery }) => {
     };
 
     useEffect(() => {
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'ko-KR';
-        recognition.continuous = false;
-        recognition.interimResults = true;
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'ko-KR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
 
-        recognition.onstart = () => {
-            setListening(true);
-            setTranscript('');
-            isRecognitionStarted.current = true;
-        };
+      recognition.onstart = () => {
+          setListening(true);
+          setTranscript('');
+          setFinalTranscript(''); // 초기화
+          isRecognitionStarted.current = true;
+      };
 
-        recognition.onresult = (event) => {
-            const currentTranscript = Array.from(event.results)
-                .map(result => result[0].transcript)
-                .join('');
-            setTranscript(currentTranscript);
-            
-            if (event.results[0].isFinal) {
-                setSearchQuery(currentTranscript);
-                saveTranscriptToFirebase(currentTranscript);  // Firebase에 저장
-                setTimeout(() => {
-                    navigate('/confirmation');
-                }, 1500);
-            }
-        };
+      recognition.onresult = (event) => {
+          const currentTranscript = Array.from(event.results)
+              .map(result => result[0].transcript)
+              .join('');
+          setTranscript(currentTranscript);
+          
+          if (event.results[0].isFinal) {
+              setFinalTranscript(currentTranscript); // 최종 인식 결과 저장
+              setSearchQuery(currentTranscript);
+              saveTranscriptToFirebase(currentTranscript);
+              setTimeout(() => {
+                  navigate('/confirmation');
+              }, 1500); // 3초 후 페이지 이동 (시간 증가)
+          }
+      };
   
       recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
@@ -212,23 +215,23 @@ const ListeningScreen = ({ setSearchQuery }) => {
     };
 
     return (
-        <Container>
-            <Logo src={logoImage} alt="Logo" visible={!listening} />
-            {listening && <SpinningCircle />}
-            <MessageContainer>
-                <Message>{listening ? '듣고 있어요!' : '말씀해 주세요!'}</Message>
-                {!listening && countdown > 0 && (
-                    <Countdown>{countdown}초 후 자동으로 시작됩니다</Countdown>
-                )}
-            </MessageContainer>
-            {!listening ? (
-                <Button onClick={startListening}>말하기</Button>
-            ) : (
-                <Button onClick={stopListening}>중지</Button>
-            )}
-            {transcript && <Result>"{transcript}"</Result>}
-        </Container>
-    );
+      <Container>
+          <Logo src={logoImage} alt="Logo" visible={!listening} />
+          {listening && <SpinningCircle />}
+          <MessageContainer>
+              <Message>{listening ? '듣고 있어요!' : '말씀해 주세요!'}</Message>
+              {!listening && countdown > 0 && (
+                  <Countdown>{countdown}초 후 자동으로 시작됩니다</Countdown>
+              )}
+          </MessageContainer>
+          {!listening ? (
+              <Button onClick={startListening}>말하기</Button>
+          ) : (
+              <Button onClick={stopListening}>중지</Button>
+          )}
+          {(transcript || finalTranscript) && <Result>"{transcript || finalTranscript}"</Result>}
+      </Container>
+  );
 };
 
 export default ListeningScreen;
