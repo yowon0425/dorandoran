@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,9 +13,8 @@ const Container = styled.div`
 
 const VideoContainer = styled.div`
   position: relative;
-  width: 90%;
-  height: 70vh;
-  min-height: 360px;
+  width: 100%; // Use full width
+  height: 80vh; // Increase height to make video larger
   margin-bottom: 30px;
 `;
 
@@ -43,30 +42,12 @@ const ControlButton = styled.button`
   }
 `;
 
-const PlayButton = styled.button`
-  padding: 15px 30px;
-  font-size: 2rem;
-  font-weight: bold;
-  cursor: pointer;
-  background-color: #FF0000;
-  color: white;
-  border: none;
-  border-radius: 15px;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background-color: #CC0000;
-    transform: scale(1.05);
-  }
-`;
-
 const YouTubeScreen = () => {
     const navigate = useNavigate();
     const videoId = 'oK_ffvHgULI'; // 고정된 비디오 ID
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        // 모바일 환경 감지
         const checkMobile = () => {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             setIsMobile(/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase()));
@@ -75,24 +56,38 @@ const YouTubeScreen = () => {
     }, []);
 
     useEffect(() => {
+        // Load YouTube IFrame API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        window.onYouTubeIframeAPIReady = () => {
+            new window.YT.Player('player', {
+                videoId,
+                height: '100%', // Ensure iframe fills container
+                width: '100%', // Ensure iframe fills container
+                events: {
+                    'onStateChange': (event) => {
+                        if (event.data === window.YT.PlayerState.ENDED) {
+                            navigate('/');
+                        }
+                    }
+                }
+            });
+        };
+
         const timer = setTimeout(() => {
             navigate('/');
         }, 600000);
 
         return () => clearTimeout(timer);
-    }, [navigate]);
+    }, [navigate, videoId]);
 
     return (
         <Container>
             <VideoContainer>
-                <iframe
-                    width="100%"
-                    height="100%"
-                    src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${isMobile ? 0 : 1}`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                ></iframe>
+                <div id="player"></div>
             </VideoContainer>
             <ButtonContainer>
                 <ControlButton onClick={() => navigate('/')}>돌아가기</ControlButton>

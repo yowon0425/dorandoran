@@ -32,7 +32,7 @@ const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 60px;
+  margin-bottom: 10px; /* 간격을 줄였습니다 */
 `;
 
 const Message = styled.h1`
@@ -119,7 +119,7 @@ const db = getFirestore(app);
 const ListeningScreen = ({ setSearchQuery }) => {
     const [listening, setListening] = useState(false);
     const [transcript, setTranscript] = useState('');
-    const [countdown, setCountdown] = useState(10);
+    const [countdown, setCountdown] = useState(3);
     const navigate = useNavigate();
     const recognitionRef = useRef(null);
     const isRecognitionStarted = useRef(false);

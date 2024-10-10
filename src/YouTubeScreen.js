@@ -263,7 +263,7 @@ const YouTubeScreen = ({ searchQuery }) => {
     useEffect(() => {
         let intervalId;
         if (showEndModal) {
-            setCountdown(10);
+            setCountdown(3);
             intervalId = setInterval(() => {
                 setCountdown(prevCount => {
                     if (prevCount === 1) {
@@ -277,7 +277,7 @@ const YouTubeScreen = ({ searchQuery }) => {
 
             timerRef.current = setTimeout(() => {
                 handleContinuePlayback();
-            }, 10000);
+            }, 3000);
         }
         return () => {
             clearInterval(intervalId);

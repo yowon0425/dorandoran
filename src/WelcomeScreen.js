@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import doranImage from './img/doran.jpg';
-import * as faceapi from 'face-api.js';
 
 const Container = styled.div`
   display: flex;
@@ -11,7 +10,6 @@ const Container = styled.div`
   height: 100vh;
   background-color: #F7F9EB;
   padding: 20px;
-  position: relative;
 `;
 
 const ContentContainer = styled.div`
@@ -57,29 +55,11 @@ const DoranImage = styled.img`
 `;
 
 const VideoFeed = styled.video`
-  position: absolute;
-  top: 20px;
-  left: 0px;
-  width: 300px;
-  height: 220px;
-  z-index: 1;
+  display: none;
 `;
 
 const Canvas = styled.canvas`
-  position: absolute;
-  top: 20px;
-  left: 0px;
-  width: 300px;
-  height: 220px;
-  z-index: 2;
-`;
-
-const MotionDetectionMessage = styled.p`
-  position: absolute;
-  top: 270px;
-  left: 20px;
-  font-size: 1.5rem;
-  color: #007B2D;
+  display: none;
 `;
 
 const WelcomeScreen = () => {
@@ -145,7 +125,7 @@ const WelcomeScreen = () => {
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
                 // Highlight areas with motion
-                ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';  // 초록색으로 변경
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
                 diffPixels.forEach(pixel => {
                   ctx.fillRect(pixel.x, pixel.y, 1, 1);
                 });
@@ -230,15 +210,8 @@ const WelcomeScreen = () => {
         <Button onClick={handleClick}>시작하기</Button>
       </ContentContainer>
       <DoranImage src={doranImage} alt="도란이" />
-      <div style={{ position: 'absolute', top: 20, left: 20 }}>
-        <VideoFeed ref={videoRef} />
-        <Canvas ref={canvasRef} width="320" height="240" />
-      </div>
-      {motionDetected && (
-        <MotionDetectionMessage>
-          움직임 감지: {motionDuration.toFixed(1)}초
-        </MotionDetectionMessage>
-      )}
+      <VideoFeed ref={videoRef} />
+      <Canvas ref={canvasRef} width="320" height="240" />
     </Container>
   );
 };
