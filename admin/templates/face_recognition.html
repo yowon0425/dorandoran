@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영상인식</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}">홈</a></li>
+            <li><a href="{{ url_for('playlist') }}">재생리스트</a></li>
+            <li><a href="{{ url_for('data_warehouse') }}">데이터웨어하우스</a></li>
+        </ul>
+    </nav>
+    <h1>영상인식</h1>
+    <button onclick="window.location.href='/start_recognition';">Start Face Recognition</button>
+</body>
+</html>

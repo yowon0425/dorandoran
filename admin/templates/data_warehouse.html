@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Warehouse</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .word-cloud span {
+            display: inline-block;
+            margin: 5px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Data Warehouse</h1>
+    <div class="word-cloud">
+        {% for word, count in word_frequency %}
+        <span style="font-size: {{ 14 + count * 5 }}px;">{{ word }}</span>
+        {% endfor %}
+    </div>
+</body>
+</html>
