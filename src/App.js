@@ -1,24 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import WelcomeScreen from './WelcomeScreen';
+import ListeningScreen from './ListeningScreen';
+import ConfirmationScreen from './ConfirmationScreen';
+import YouTubeScreen from './YouTubeScreen';
 
 function App() {
+  const [searchQuery, setSearchQuery] = useState('');
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<WelcomeScreen />} />
+        <Route path="/listening" element={<ListeningScreen setSearchQuery={setSearchQuery} />} />
+        <Route path="/confirmation" element={<ConfirmationScreen />} />
+        <Route path="/youtube" element={<YouTubeScreen searchQuery={searchQuery} />} />
+      </Routes>
+    </Router>
   );
 }
 
