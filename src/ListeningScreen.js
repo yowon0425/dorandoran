@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import logoImage from './img/doran2.png';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc } from 'firebase/firestore';
 
 const Logo = styled.img`
   width: 400px;
@@ -15,9 +17,15 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #F7F9EB;
   padding: 20px;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    justify-content: flex-start;
+    padding-top: 50px;
+  }
 `;
 
 const MessageContainer = styled.div`
@@ -41,18 +49,27 @@ const Countdown = styled.p`
 `;
 
 const Button = styled.button`
-  padding: 30px 60px;
-  font-size: 3rem;
+  padding: 20px 40px;
+  font-size: 2.5rem;
   cursor: pointer;
   background-color: #007B2D;
   color: white;
   border: none;
   border-radius: 15px;
   transition: background-color 0.3s, transform 0.3s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 
-  &:hover {
+  &:hover, &:active {
     background-color: #45a049;
     transform: scale(1.05);
+  }
+
+  @media (max-width: 768px) {
+    padding: 15px 30px;
+    font-size: 2rem;
+    width: 80%;
+    max-width: 300px;
   }
 `;
 
@@ -84,6 +101,21 @@ const SpinningCircle = styled.div`
   margin-bottom: 30px;
 `;
 
+const firebaseConfig = {
+    apiKey: "AIzaSyB8sERMO4W8uTVBH238hCaHwFGuCmO2YwE",
+  authDomain: "dorandoran-419b9.firebaseapp.com",
+  databaseURL: "https://dorandoran-419b9-default-rtdb.firebaseio.com",
+  projectId: "dorandoran-419b9",
+  storageBucket: "dorandoran-419b9.appspot.com",
+  messagingSenderId: "1022208652097",
+  appId: "1:1022208652097:web:b9a399996e27bb8dca27c0",
+  measurementId: "G-B2GVZQTR6E"
+  };
+
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const ListeningScreen = ({ setSearchQuery }) => {
     const [listening, setListening] = useState(false);
     const [transcript, setTranscript] = useState('');
@@ -91,32 +123,45 @@ const ListeningScreen = ({ setSearchQuery }) => {
     const navigate = useNavigate();
     const recognitionRef = useRef(null);
     const isRecognitionStarted = useRef(false);
-  
-    useEffect(() => {
-      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-      recognition.lang = 'ko-KR';
-      recognition.continuous = false;
-      recognition.interimResults = true;
-  
-      recognition.onstart = () => {
-        setListening(true);
-        setTranscript('');
-        isRecognitionStarted.current = true;
-      };
-  
-      recognition.onresult = (event) => {
-        const currentTranscript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join('');
-        setTranscript(currentTranscript);
-        
-        if (event.results[0].isFinal) {
-          setSearchQuery(currentTranscript);
-          setTimeout(() => {
-            navigate('/confirmation');
-          }, 1500);
+
+    const saveTranscriptToFirebase = async (transcript) => {
+        try {
+            const docRef = await addDoc(collection(db, "answer"), {
+                text: transcript,
+                timestamp: new Date()
+            });
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error("Error adding document: ", e);
         }
-      };
+    };
+
+    useEffect(() => {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'ko-KR';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+            setListening(true);
+            setTranscript('');
+            isRecognitionStarted.current = true;
+        };
+
+        recognition.onresult = (event) => {
+            const currentTranscript = Array.from(event.results)
+                .map(result => result[0].transcript)
+                .join('');
+            setTranscript(currentTranscript);
+            
+            if (event.results[0].isFinal) {
+                setSearchQuery(currentTranscript);
+                saveTranscriptToFirebase(currentTranscript);  // Firebase에 저장
+                setTimeout(() => {
+                    navigate('/confirmation');
+                }, 1500);
+            }
+        };
   
       recognition.onerror = (event) => {
         console.error('Speech recognition error', event.error);
@@ -165,25 +210,25 @@ const ListeningScreen = ({ setSearchQuery }) => {
         recognitionRef.current.stop();
       }
     };
-    
-  return (
-    <Container>
-      <Logo src={logoImage} alt="Logo" visible={!listening} />
-      {listening && <SpinningCircle />}
-      <MessageContainer>
-        <Message>{listening ? '듣고 있어요!' : '말씀해 주세요!'}</Message>
-        {!listening && countdown > 0 && (
-          <Countdown>{countdown}초 후 자동으로 시작됩니다</Countdown>
-        )}
-      </MessageContainer>
-      {!listening ? (
-        <Button onClick={startListening}>말하기</Button>
-      ) : (
-        <Button onClick={stopListening}>중지</Button>
-      )}
-      {transcript && <Result>"{transcript}"</Result>}
-    </Container>
-  );
+
+    return (
+        <Container>
+            <Logo src={logoImage} alt="Logo" visible={!listening} />
+            {listening && <SpinningCircle />}
+            <MessageContainer>
+                <Message>{listening ? '듣고 있어요!' : '말씀해 주세요!'}</Message>
+                {!listening && countdown > 0 && (
+                    <Countdown>{countdown}초 후 자동으로 시작됩니다</Countdown>
+                )}
+            </MessageContainer>
+            {!listening ? (
+                <Button onClick={startListening}>말하기</Button>
+            ) : (
+                <Button onClick={stopListening}>중지</Button>
+            )}
+            {transcript && <Result>"{transcript}"</Result>}
+        </Container>
+    );
 };
 
 export default ListeningScreen;

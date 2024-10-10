@@ -17,7 +17,7 @@ const ContentContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 60%;
+  width: 55%;
   margin-left: auto;
   margin-right: 10%;
 `;
@@ -26,7 +26,7 @@ const Message = styled.h1`
   font-size: 5rem;
   text-align: center;
   color: #333;
-  margin-bottom: 60px;
+  margin-bottom: 56px;
   line-height: 1.2;
 `;
 
@@ -64,8 +64,8 @@ const WelcomeScreen = () => {
       <ContentContainer>
         <Message>
           안녕하세요!<br/>
-          원하시는 노래나 영상이<br/>
-          있으면 말씀해주세요!
+          원하시는 노래나<br/>영상이 있으면<br/>
+          말씀해주세요!
         </Message>
         <Button onClick={handleClick}>시작하기</Button>
       </ContentContainer>
