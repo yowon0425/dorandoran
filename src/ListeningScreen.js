@@ -26,7 +26,7 @@ const Button = styled.button`
 
 const Result = styled.p`
   margin-top: 20px;
-  font-size: 2.5rem; /* 글자 크기를 크게 설정 */
+  font-size: 2.5rem; /* 글자 크기를 더 크게 설정 */
   color: #00796b;
 `;
 
@@ -49,7 +49,7 @@ const ListeningScreen = ({ setSearchQuery }) => {
       setListening(false);
       setTimeout(() => {
         navigate('/confirmation');
-      }, 3000); // 인식 후 3초 후에 이동
+      }, 2000); // 인식 후 5초 후에 이동
     };
 
     recognition.onresult = (event) => {
