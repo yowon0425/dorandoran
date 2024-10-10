@@ -1,6 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useState, useEffect, useRef } from 'react';
+import styled, { keyframes } from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import logoImage from './img/doran2.png';
+
+const Logo = styled.img`
+  width: 400px;
+  height: auto;
+  margin-bottom: 20px;
+  display: ${props => props.visible ? 'block' : 'none'};
+`;
 
 const Container = styled.div`
   display: flex;
@@ -12,12 +20,24 @@ const Container = styled.div`
   padding: 20px;
 `;
 
+const MessageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 60px;
+`;
+
 const Message = styled.h1`
   font-size: 5rem;
   text-align: center;
   color: #333;
-  margin-bottom: 60px;
   line-height: 1.2;
+`;
+
+const Countdown = styled.p`
+  font-size: 3rem;
+  color: #007B2D;
+  margin-top: 20px;
 `;
 
 const Button = styled.button`
@@ -45,58 +65,122 @@ const Result = styled.p`
   word-wrap: break-word;
 `;
 
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`;
+
+const SpinningCircle = styled.div`
+  width: 100px;
+  height: 100px;
+  border: 10px solid #007B2D;
+  border-top: 10px solid #45a049;
+  border-radius: 50%;
+  animation: ${rotate} 1s linear infinite;
+  margin-bottom: 30px;
+`;
+
 const ListeningScreen = ({ setSearchQuery }) => {
-  const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
+    const [listening, setListening] = useState(false);
+    const [transcript, setTranscript] = useState('');
+    const [countdown, setCountdown] = useState(10);
+    const navigate = useNavigate();
+    const recognitionRef = useRef(null);
+    const isRecognitionStarted = useRef(false);
   
-  const navigate = useNavigate();
+    useEffect(() => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'ko-KR';
+      recognition.continuous = false;
+      recognition.interimResults = true;
   
-  useEffect(() => {
-    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'ko-KR';
-
-    recognition.onstart = () => {
-      setListening(true);
-      setTranscript('');
+      recognition.onstart = () => {
+        setListening(true);
+        setTranscript('');
+        isRecognitionStarted.current = true;
+      };
+  
+      recognition.onresult = (event) => {
+        const currentTranscript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        setTranscript(currentTranscript);
+        
+        if (event.results[0].isFinal) {
+          setSearchQuery(currentTranscript);
+          setTimeout(() => {
+            navigate('/confirmation');
+          }, 1500);
+        }
+      };
+  
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setListening(false);
+        isRecognitionStarted.current = false;
+      };
+  
+      recognition.onend = () => {
+        setListening(false);
+        isRecognitionStarted.current = false;
+      };
+  
+      recognitionRef.current = recognition;
+  
+      return () => {
+        if (recognitionRef.current) {
+          recognitionRef.current.abort();
+        }
+      };
+    }, [navigate, setSearchQuery]);
+  
+    useEffect(() => {
+      let timer;
+      if (countdown > 0 && !listening) {
+        timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      } else if (countdown === 0 && !listening) {
+        startListening();
+      }
+      return () => clearTimeout(timer);
+    }, [countdown, listening]);
+  
+    const startListening = () => {
+      setCountdown(0);
+      if (recognitionRef.current && !isRecognitionStarted.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (error) {
+          console.error('Error starting speech recognition:', error);
+          isRecognitionStarted.current = false;
+        }
+      }
     };
-
-    recognition.onend = () => {
-      setListening(false);
-      setTimeout(() => {
-        navigate('/confirmation');
-      }, 1500);
-    };
-
-    recognition.onresult = (event) => {
-      const currentTranscript = event.results[0][0].transcript;
-      setTranscript(currentTranscript);
-      setSearchQuery(currentTranscript);
-    };
-
-    if (listening) {
-      recognition.start();
-    } else {
-      recognition.stop();
-    }
-
-    return () => {
-      recognition.stop();
+  
+    const stopListening = () => {
+      if (recognitionRef.current && isRecognitionStarted.current) {
+        recognitionRef.current.stop();
+      }
     };
     
-  }, [listening, navigate, setSearchQuery]);
-
-  const toggleListening = () => {
-    setListening((prevState) => !prevState);
-  };
-
   return (
     <Container>
-      <Message>
-        {listening ? '듣고 있어요!' : '말씀해 주세요!'}
-      </Message>
-      <Button onClick={toggleListening}>
-        {listening ? '인식 중지' : '말하기'}
-      </Button>
+      <Logo src={logoImage} alt="Logo" visible={!listening} />
+      {listening && <SpinningCircle />}
+      <MessageContainer>
+        <Message>{listening ? '듣고 있어요!' : '말씀해 주세요!'}</Message>
+        {!listening && countdown > 0 && (
+          <Countdown>{countdown}초 후 자동으로 시작됩니다</Countdown>
+        )}
+      </MessageContainer>
+      {!listening ? (
+        <Button onClick={startListening}>말하기</Button>
+      ) : (
+        <Button onClick={stopListening}>중지</Button>
+      )}
       {transcript && <Result>"{transcript}"</Result>}
     </Container>
   );

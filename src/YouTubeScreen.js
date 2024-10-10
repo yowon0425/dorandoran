@@ -98,6 +98,7 @@ const CountdownText = styled.p`
   margin-top: 10px;
 `;
 
+
 const YouTubeScreen = ({ searchQuery }) => {
     const [videoId, setVideoId] = useState('');
     const [isPlaying, setIsPlaying] = useState(false);
@@ -176,7 +177,7 @@ const YouTubeScreen = ({ searchQuery }) => {
                     relatedToVideoId: videoId,
                     type: 'video',
                     maxResults: 5,
-                    key: 'AIzaSyC9-bWZpXNmLZmAE-XbnEvnqmdbekSO3is',
+                    key: 'AIzaSyCXD0iMjhbp08njIq2QpYkb1dNfAx2s-es',
                 },
             });
 
@@ -204,7 +205,7 @@ const YouTubeScreen = ({ searchQuery }) => {
                         q: searchQuery,
                         type: 'video',
                         maxResults: 5,
-                        key: 'AIzaSyC9-bWZpXNmLZmAE-XbnEvnqmdbekSO3is',
+                        key: 'AIzaSyCXD0iMjhbp08njIq2QpYkb1dNfAx2s-es',
                     },
                 });
 
