@@ -4,6 +4,7 @@ import WelcomeScreen from './WelcomeScreen';
 import ListeningScreen from './ListeningScreen';
 import ConfirmationScreen from './ConfirmationScreen';
 import YouTubeScreen from './YouTubeScreen';
+import YoutubeScreen2 from './YouTubeScreen2';
 
 function App() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,6 +16,7 @@ function App() {
         <Route path="/listening" element={<ListeningScreen setSearchQuery={setSearchQuery} />} />
         <Route path="/confirmation" element={<ConfirmationScreen />} />
         <Route path="/youtube" element={<YouTubeScreen searchQuery={searchQuery} />} />
+        <Route path="/youtube2" element={<YoutubeScreen2/>} />
       </Routes>
     </Router>
   );
