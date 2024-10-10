@@ -8,26 +8,41 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #e0f7fa;
+  background-color: #F7F9EB;
+  padding: 20px;
 `;
 
 const Message = styled.h1`
-  font-size: 3rem;
+  font-size: 5rem;
   text-align: center;
-  color: #00796b;
+  color: #333;
+  margin-bottom: 60px;
+  line-height: 1.2;
 `;
 
 const Button = styled.button`
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1rem;
+  padding: 30px 60px;
+  font-size: 3rem;
   cursor: pointer;
+  background-color: #007B2D;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  transition: background-color 0.3s, transform 0.3s;
+
+  &:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+  }
 `;
 
 const Result = styled.p`
-  margin-top: 20px;
-  font-size: 2.5rem; /* 글자 크기를 더 크게 설정 */
-  color: #00796b;
+  margin-top: 40px;
+  font-size: 3.5rem;
+  color: #333;
+  text-align: center;
+  max-width: 80%;
+  word-wrap: break-word;
 `;
 
 const ListeningScreen = ({ setSearchQuery }) => {
@@ -49,13 +64,13 @@ const ListeningScreen = ({ setSearchQuery }) => {
       setListening(false);
       setTimeout(() => {
         navigate('/confirmation');
-      }, 2000); // 인식 후 5초 후에 이동
+      }, 1500);
     };
 
     recognition.onresult = (event) => {
       const currentTranscript = event.results[0][0].transcript;
       setTranscript(currentTranscript);
-      setSearchQuery(currentTranscript); // 인식된 텍스트를 검색 쿼리로 설정
+      setSearchQuery(currentTranscript);
     };
 
     if (listening) {
@@ -76,11 +91,13 @@ const ListeningScreen = ({ setSearchQuery }) => {
 
   return (
     <Container>
-      <Message>듣고있어요!</Message>
+      <Message>
+        {listening ? '듣고 있어요!' : '말씀해 주세요!'}
+      </Message>
       <Button onClick={toggleListening}>
-        {listening ? '인식 중지' : '음성 인식 시작'}
+        {listening ? '인식 중지' : '말하기'}
       </Button>
-      {transcript && <Result>인식된 내용: {transcript}</Result>}
+      {transcript && <Result>"{transcript}"</Result>}
     </Container>
   );
 };

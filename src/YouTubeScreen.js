@@ -9,52 +9,39 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   height: 100vh;
+  background-color: #F7F9EB;
 `;
 
 const VideoContainer = styled.div`
   position: relative;
   width: 90%;
-  height: 90%;
+  height: 70vh;
   min-height: 360px;
+  margin-bottom: 30px;
 `;
 
-const VideoFrame = styled.iframe`
-  width: 100%;
-  height: 100%;
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
 `;
 
 const ControlButton = styled.button`
-  position: absolute;
-  top: 20px;
   padding: 15px 30px;
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: #007B2D;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 15px;
   transition: all 0.3s ease;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: #45a049;
     transform: scale(1.05);
   }
-`;
-
-const StartButton = styled(ControlButton)`
-  left: 20px;
-`;
-
-const StopButton = styled(ControlButton)`
-  right: 20px;
-`;
-
-const Button = styled.button`
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  cursor: pointer;
 `;
 
 const ModalOverlay = styled.div`
@@ -63,24 +50,47 @@ const ModalOverlay = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
 const ModalContent = styled.div`
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
+  background-color: #F7F9EB;
+  padding: 40px;
+  border-radius: 20px;
   text-align: center;
+  max-width: 80%;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 3rem;
+  color: #333;
+  margin-bottom: 20px;
+`;
+
+const ModalText = styled.p`
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
 `;
 
 const ModalButton = styled.button`
   margin: 10px;
-  padding: 10px 20px;
-  font-size: 1rem;
+  padding: 15px 30px;
+  font-size: 2rem;
   cursor: pointer;
+  background-color: #007B2D;
+  color: white;
+  border: none;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+  }
 `;
 
 const CountdownText = styled.p`
@@ -311,19 +321,21 @@ const YouTubeScreen = ({ searchQuery }) => {
             {videoId ? (
                 <VideoContainer>
                     <div id="youtube-player"></div>
-                    <StartButton onClick={startVideo}>▶ 영상 시작</StartButton>
-                    <StopButton onClick={stopVideo}>■ 영상 중지</StopButton>
                 </VideoContainer>
             ) : (
                 <p>영상을 불러오는 중입니다...</p>
             )}
-            <Button onClick={() => navigate('/listening')}>음성인식</Button>
+            <ButtonContainer>
+                <ControlButton onClick={startVideo}>▶ 영상 시작</ControlButton>
+                <ControlButton onClick={stopVideo}>■ 영상 멈추기</ControlButton>
+                <ControlButton onClick={() => navigate('/listening')}>말하기</ControlButton>
+            </ButtonContainer>
 
             {showEndModal && (
                 <ModalOverlay>
                     <ModalContent>
-                        <h2>영상이 종료되었습니다</h2>
-                        <p>비슷한 영상을 계속해서 틀까요?</p>
+                        <ModalTitle>영상이 종료되었습니다</ModalTitle>
+                        <ModalText>비슷한 영상을 계속해서 틀까요?</ModalText>
                         <CountdownText>{countdown}초 후 자동으로 다음 영상이 재생됩니다.</CountdownText>
                         <ModalButton onClick={handleContinuePlayback}>예</ModalButton>
                         <ModalButton onClick={handleEndSession}>아니오</ModalButton>
